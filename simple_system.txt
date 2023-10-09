@@ -1,0 +1,137 @@
+// Include Arduino Servo Library
+#include <Servo.h> 
+
+// Control and feedback pins
+int servoPin = 9;
+int feedbackPin = A0;
+int flag=1;
+
+// Value from feedback signal
+int feedbackValue;
+
+// Create a servo object
+Servo myservo; 
+
+//Setup 
+void setup() 
+{ 
+  // Setup Serial Monitor
+  Serial.begin(9600);
+
+  // Attach myservo object to control pin
+  myservo.attach(servoPin); 
+  
+ //Read the servos initial position 
+ int servoPos= myservo.read(); 
+ Serial.print("Initial Position = ");
+ Serial.print(servoPos);
+  Serial.print("\n"); 
+// //Enter the required angle
+ Serial.println("Enter desired position: "); //Prompt User for Input
+  while (Serial.available() == 0) {
+  // Wait for User to Input Data
+  }
+ int desiredPos = Serial.parseInt();
+ Serial.print(desiredPos);
+
+ //Check if the entered angle is within the servo limit 0-180 degrees
+  if (desiredPos < 0 || desiredPos >180){
+    Serial.print("\n");
+    Serial.print("ERROR: Desired Position not within servo limit ");
+    Serial.print("\n");
+  }
+
+//check if servo already at required position
+else if (desiredPos==servoPos){Serial.print("Servo already at Desired Position ");}
+  
+  //Clockwise rotation
+  else if (desiredPos-servoPos>0)  {
+    int initial_feedbackValue = analogRead(feedbackPin);
+    Serial.print("\n");
+    Serial.println("Initial feedbackValue=");
+    Serial.println(initial_feedbackValue);
+    Serial.print("\n");
+    Serial.print("Desired Position > Current servo position : move clockwise ");
+    Serial.print("\n");
+    // Step through servo positions
+    // Increment by 1 degrees
+    for (servoPos; servoPos <=desiredPos; servoPos = servoPos + 1){
+    // Position servo motor
+    myservo.write(servoPos);
+    // Allow time to get there
+    delay(1000);
+    
+    // Read value from feedback signal
+    feedbackValue = analogRead(feedbackPin);
+    
+    // Write value to serial monitor
+    Serial.print("Position = ");
+    Serial.print(servoPos);
+    Serial.print("\t");
+    Serial.println(feedbackValue);
+  } 
+    int final_feedbackValue = analogRead(feedbackPin);
+    Serial.print("\n");
+    Serial.println("Final feedbackValue=");
+    Serial.println(final_feedbackValue);
+    // Print to serial monitor when done
+    int x=initial_feedbackValue-final_feedbackValue;
+   //Check if feedback value of initial and desired angle are different
+  if (x==-1||x==0||x==1||(servoPos-1)!=desiredPos)
+  { flag=0;
+    Serial.println("ERROR: Desired position not attained"); 
+  }
+  else {
+    flag=1;
+  Serial.println("Desired position attained");
+  servoPos= myservo.read();
+  }
+  }
+
+  //anticlockwise rotation
+  else  { 
+    Serial.print("\n");
+    int initial_feedbackValue = analogRead(feedbackPin);
+    Serial.print("\n");
+    Serial.println("Initial feedbackValue=");
+    Serial.println(initial_feedbackValue);
+    Serial.print("Desired Position < Current servo position : move anticlockwise ");
+    Serial.print("\n");
+   for (servoPos ; servoPos >=desiredPos; servoPos = servoPos -1){
+        // Position servo motor
+    myservo.write(servoPos);
+    // Allow time to get there
+    delay(1000);
+    
+    // Read value from feedback signal
+    feedbackValue = analogRead(feedbackPin);
+    
+    // Write value to serial monitor
+    Serial.print("Position = ");
+    Serial.print(servoPos);
+    Serial.print("\t");
+    Serial.println(feedbackValue);
+       
+  }
+    int final_feedbackValue = analogRead(feedbackPin);
+    Serial.print("\n");
+    Serial.println("Final feedbackValue=");
+    Serial.println(final_feedbackValue);
+    int x=initial_feedbackValue-final_feedbackValue;
+    
+   if (x==-1||x==0||x==1||(servoPos-1)!=desiredPos)
+  { flag=0;
+    Serial.println("ERROR: Desired position not attained"); 
+  }
+  else {
+    flag=1;
+  Serial.println("Desired position attained");
+  servoPos= myservo.read();
+  }
+  }
+}  
+
+void loop()
+{
+                             // waits for the servo to get there
+} 
